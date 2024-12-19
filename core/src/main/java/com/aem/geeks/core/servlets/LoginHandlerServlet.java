@@ -9,29 +9,43 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.Override;
 
 @Component(
         service = Servlet.class,
         property = {
                 "sling.servlet.methods=" + HttpConstants.METHOD_GET,
-                "sling.servlet.paths=/bin/login-handler"
+                "sling.servlet.paths=/bin/login-handler",
+                "sling.servlet.selectors=login",
+                "sling.servlet.extensions=json"
         }
 )
-public class LoginHandlerServlet extends LoginHandlerServlets {
+public class LoginHandlerServlet extends SlingAllMethodsServlet {
 
-    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Fetch parameters from the form
+        // Fetch parameters from the request
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String dateOfBirth = request.getParameter("dateOfBirth");
+        String buttonText = request.getParameter("buttonText"); // New field
 
-        // Sample logic to validate inputs
+        // Set content type
+        response.setContentType("application/json");
+
+        // Logic to validate inputs and build response
+        String jsonResponse;
         if ("admin".equals(username) && "admin123".equals(password) && "1990-01-01".equals(dateOfBirth)) {
-            response.getWriter().write("Login successful! Welcome, " + username + ".");
+            jsonResponse = String.format(
+                    "{ \"message\": \"Login successful! Welcome, %s.\", \"buttonText\": \"%s\" }",
+                    username, buttonText != null ? buttonText : "Default Button Text"
+            );
         } else {
-            response.getWriter().write("Invalid login details. Please try again.");
+            jsonResponse = String.format(
+                    "{ \"message\": \"Invalid login details. Please try again.\", \"buttonText\": \"%s\" }",
+                    buttonText != null ? buttonText : "Try Again"
+            );
         }
+
+        // Write response
+        response.getWriter().write(jsonResponse);
     }
 }
