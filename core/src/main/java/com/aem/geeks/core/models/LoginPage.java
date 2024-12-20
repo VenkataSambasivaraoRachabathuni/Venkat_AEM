@@ -11,20 +11,20 @@ import javax.inject.Named;
 public class LoginPage {
 
     @Inject
-    @Named("username")
     private String username;
 
     @Inject
-    @Named("password")
     private String password;
 
     @Inject
-    @Named("dateofbirth")
     private String dateOfBirth;
 
     @Inject
-    @Named("buttonText")
     private String buttonText;
+
+    public String getButtonText() {
+        return buttonText;
+    }
 
     public String getUsername() {
         return username;
@@ -37,10 +37,4 @@ public class LoginPage {
     public String getDateOfBirth() {
         return dateOfBirth;
     }
-
-    public String getButtonText() {
-        return buttonText != null ? buttonText : "Click here to login";
-    }
-
-
 }

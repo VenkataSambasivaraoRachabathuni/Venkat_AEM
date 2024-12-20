@@ -1,27 +1,26 @@
 package com.aem.geeks.core.servlets;
 
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.osgi.service.component.annotations.Component;
 
 import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component(
         service = Servlet.class,
         property = {
                 "sling.servlet.methods=" + HttpConstants.METHOD_GET,
-                "sling.servlet.paths=/bin/login-handler",
-                "sling.servlet.selectors=login",
-                "sling.servlet.extensions=json"
+                "sling.servlet.resourceTypes=aemgeeks/components/content/loginPage",
+                "sling.servlet.selectors=submit"
         }
 )
 public class LoginHandlerServlet extends SlingAllMethodsServlet {
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
         // Fetch parameters from the request
         String username = request.getParameter("username");
         String password = request.getParameter("password");
@@ -30,6 +29,7 @@ public class LoginHandlerServlet extends SlingAllMethodsServlet {
 
         // Set content type
         response.setContentType("application/json");
+        response.getWriter().write("Fallback Servlet: Request handled.");
 
         // Logic to validate inputs and build response
         String jsonResponse;
