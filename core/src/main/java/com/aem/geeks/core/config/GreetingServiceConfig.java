@@ -11,4 +11,5 @@ public @interface GreetingServiceConfig {
 
     @AttributeDefinition(name = "Enable Greeting", description = "Enable or disable the greeting service")
     boolean enableGreeting() default true;
+
 }
