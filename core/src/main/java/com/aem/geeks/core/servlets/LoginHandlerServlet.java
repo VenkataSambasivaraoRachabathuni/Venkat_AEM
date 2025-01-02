@@ -2,6 +2,8 @@ package com.aem.geeks.core.servlets;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.osgi.service.component.annotations.Component;
@@ -27,20 +29,37 @@ public class LoginHandlerServlet extends SlingAllMethodsServlet {
         String dateOfBirth = request.getParameter("dateOfBirth");
         String buttonText = request.getParameter("buttonText"); // New field
 
+        // Get ResourceResolver from the request
+        ResourceResolver resourceResolver = request.getResourceResolver();
+
+        // Example: Retrieve a resource from the repository
+        Resource userProfileResource = resourceResolver.getResource("/content/userProfiles/" + username);
+
         // Set content type
         response.setContentType("application/json");
-        response.getWriter().write("Fallback Servlet: Request handled.");
 
-        // Logic to validate inputs and build response
         String jsonResponse;
-        if ("admin".equals(username) && "admin123".equals(password) && "1990-01-01".equals(dateOfBirth)) {
-            jsonResponse = String.format(
-                    "{ \"message\": \"Login successful! Welcome, %s.\", \"buttonText\": \"%s\" }",
-                    username, buttonText != null ? buttonText : "Default Button Text"
-            );
+        if (userProfileResource != null) {
+            // Fetch properties from the resource
+            String storedPassword = userProfileResource.getValueMap().get("password", String.class);
+            String storedDOB = userProfileResource.getValueMap().get("dateOfBirth", String.class);
+
+            // Validate login details
+            if (storedPassword != null && storedPassword.equals(password) &&
+                    storedDOB != null && storedDOB.equals(dateOfBirth)) {
+                jsonResponse = String.format(
+                        "{ \"message\": \"Login successful! Welcome, %s.\", \"buttonText\": \"%s\" }",
+                        username, buttonText != null ? buttonText : "Default Button Text"
+                );
+            } else {
+                jsonResponse = String.format(
+                        "{ \"message\": \"Invalid login details. Please try again.\", \"buttonText\": \"%s\" }",
+                        buttonText != null ? buttonText : "Try Again"
+                );
+            }
         } else {
             jsonResponse = String.format(
-                    "{ \"message\": \"Invalid login details. Please try again.\", \"buttonText\": \"%s\" }",
+                    "{ \"message\": \"User profile not found.\", \"buttonText\": \"%s\" }",
                     buttonText != null ? buttonText : "Try Again"
             );
         }
